@@ -1,61 +1,61 @@
 # Keitaro Automation CLI
 
-Расширяемый CLI-инструмент на Node.js для автоматизаций в Keitaro Admin API.
+An extensible Node.js CLI tool for automation with the Keitaro Admin API.
 
-Поддерживает:
+Supported operations:
 
-- получение списков сущностей (`list`)
-- получение сущности по id (`get`)
-- создание сущности (`create`)
-- обновление сущности (`update`)
-- удаление сущности (`delete`)
+- list entities (`list`)
+- get an entity by id (`get`)
+- create an entity (`create`)
+- update an entity (`update`)
+- delete an entity (`delete`)
 
-Изначально оптимизирован под домены, но архитектура сделана универсальной для дальнейшего расширения: офферы, пользователи, кампании и другие ресурсы Keitaro.
+Originally optimized for domains, but designed as a generic architecture that can be extended for offers, users, campaigns, and other Keitaro resources.
 
-## Основные возможности
+## Key Features
 
-- OOP-архитектура с разделением ответственности (SOLID-подход)
-- Понятные логи с уровнями (`error`, `warn`, `info`, `debug`)
-- Отказоустойчивый HTTP-клиент с обработкой ошибок API
-- Поддержка конфигурации через `.env`
-- Переопределение любых конфигов через CLI-аргументы
-- Вывод списков в консоль
-- Единая логика выборки поля для любых сущностей через `--value`
+- OOP architecture with clear separation of responsibilities (SOLID approach)
+- Human-friendly logs with levels (`error`, `warn`, `info`, `debug`)
+- Resilient HTTP client with API error handling
+- Configuration via `.env`
+- Any config can be overridden with CLI arguments
+- Console output for responses
+- Unified field selection for any entity via `--value`
 
-## Какие ошибки API обрабатываются явно
+## Explicit API Error Handling
 
-Для статусов `400`, `401`, `402`, `500`:
+For statuses `400`, `401`, `402`, `500`:
 
-- читается поле `error` из тела ответа
-- сообщение печатается в формате `Keitaro API error <status>: <error>`
+- reads the `error` field from the response body
+- prints messages in the format `Keitaro API error <status>: <error>`
 
-Если поле `error` отсутствует, используется безопасный fallback.
+If the `error` field is missing, a safe fallback message is used.
 
-## Структура проекта
+## Project Structure
 
-- `index.js` — точка входа
-- `src/app/AutomationApp.js` — orchestration и маршрутизация команд
-- `src/config/AppConfig.js` — загрузка и валидация конфигурации
-- `src/core/Logger.js` — логирование
-- `src/core/KeitaroApiClient.js` — клиент Keitaro API
-- `src/cli/CommandParser.js` — парсинг команд и опций
-- `src/services/AutomationService.js` — бизнес-операции
+- `index.js` - entry point
+- `src/app/AutomationApp.js` - orchestration and command routing
+- `src/config/AppConfig.js` - config loading and validation
+- `src/core/Logger.js` - logging
+- `src/core/KeitaroApiClient.js` - Keitaro API client
+- `src/cli/CommandParser.js` - command and option parsing
+- `src/services/AutomationService.js` - business operations
 
-## Требования
+## Requirements
 
 - Node.js 18+
 - npm 9+
-- доступ к Keitaro Admin API
+- access to Keitaro Admin API
 
-## Установка
+## Installation
 
 ```bash
 npm install
 ```
 
-## Конфигурация через .env
+## Configuration via .env
 
-Создайте `.env` на основе примера `.env.example`:
+Create a `.env` file based on `.env.example`:
 
 ```env
 KEITARO_BASE_URL=http://example.com
@@ -65,9 +65,9 @@ KEITARO_RETRIES=1
 LOG_LEVEL=info
 ```
 
-## CLI: команды
+## CLI Commands
 
-Общий формат:
+General format:
 
 ```bash
 npm start -- <command> <resource> [id] [options]
@@ -81,13 +81,13 @@ npm start -- list offers
 npm start -- list users
 ```
 
-Опции (глобальные, применяются ко всем командам):
+Options (global, apply to all commands):
 
-- `--value <name>` — вернуть только это поле из ответа команды
-- `--field <name>` — алиас для `--value`
-- `--output <path>` — сохранить вывод в файл
+- `--value <name>` - return only this field from command response
+- `--field <name>` - alias for `--value`
+- `--output <path>` - save output to file
 
-Примеры:
+Examples:
 
 ```bash
 npm start -- list domains --field name --output domains.txt
@@ -95,12 +95,12 @@ npm start -- list offers --field name --output offers.txt
 npm start -- list users --value id
 ```
 
-Поведение:
+Behavior:
 
-- если `--value` (или `--field`) не передан, возвращается полный JSON-ответ от Keitaro;
-- если `--value` передан, возвращается только указанное поле (по одному значению на строку).
+- if `--value` (or `--field`) is not provided, the full JSON response from Keitaro is returned;
+- if `--value` is provided, only that field is returned (one value per line).
 
-Это поведение единообразно для `list`, `get`, `create`, `update`, `delete`.
+This behavior is consistent for `list`, `get`, `create`, `update`, `delete`.
 
 ### get
 
@@ -131,15 +131,15 @@ npm start -- delete users 42
 npm start -- delete users 42 --output delete_result.json
 ```
 
-## Переопределение .env через CLI
+## Override .env via CLI
 
-Можно передать параметры явно:
+You can pass parameters explicitly:
 
 ```bash
 npm start -- list domains --base-url http://example.com --api-key your-api-key
 ```
 
-Доступные опции:
+Available options:
 
 - `--base-url <url>`
 - `--api-key <key>`
@@ -152,20 +152,20 @@ npm start -- list domains --base-url http://example.com --api-key your-api-key
 - `--data <json>`
 - `--help`
 
-## Режим совместимости
+## Compatibility Mode
 
-Старый формат запуска тоже поддерживается:
+Legacy launch format is still supported:
 
 ```bash
 npm start -- http://example.com your-api-key
 npm start -- http://example.com your-api-key domains.txt
 ```
 
-В этом режиме команда автоматически интерпретируется как `list domains`.
+In this mode, the command is automatically interpreted as `list domains`.
 
-## Что выводит скрипт
+## Script Output
 
-- Бизнес-результат в stdout (список строк или JSON)
-- Диагностические сообщения в stderr/stdout с префиксом уровня и времени
+- Business result to stdout (line list or JSON)
+- Diagnostic logs to stderr/stdout with timestamp and log level
 
-Powered with Github Copilot
+Powered by GitHub Copilot
